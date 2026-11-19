@@ -74,7 +74,7 @@ jobs:
           ditto -x -k "artifacts/$zip" "$unpacked"
           extracted="$unpacked/Alto Transcription.app"
           codesign --verify --strict --verbose=2 "$extracted"
-          lipo -verify_arch arm64 "$extracted/Contents/MacOS/AltoTranscription"
+          lipo "$extracted/Contents/MacOS/AltoTranscription" -verify_arch arm64
           (
             cd artifacts
             shasum -a 256 "$zip" > "$zip.sha256"
