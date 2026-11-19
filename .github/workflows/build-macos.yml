@@ -74,14 +74,15 @@ jobs:
           ASSET_NAME: ${{ steps.version.outputs.name }}
         run: |
           mkdir -p artifacts
-          app="dist/Alto Transcription.app"
+          app_name=$(plutil -extract CFBundleName raw Scripts/Info.plist)
+          app="dist/$app_name.app"
           zip="$ASSET_NAME.zip"
           ditto -c -k --keepParent "$app" "artifacts/$zip"
           unpacked=$(mktemp -d)
           trap 'rm -rf "$unpacked"' EXIT
           ditto -x -k "artifacts/$zip" "$unpacked"
-          extracted="$unpacked/Alto Transcription.app"
-          codesign --verify --strict --verbose=2 "$extracted"
+          extracted="$unpacked/$app_name.app"
+          codesign --verify --deep --strict --verbose=2 "$extracted"
           lipo "$extracted/Contents/MacOS/AltoTranscription" -verify_arch arm64
           (
             cd artifacts
@@ -93,6 +94,9 @@ jobs:
             xcodebuild -version
             swift --version
           } | tee artifacts/BUILD.txt >> "$GITHUB_STEP_SUMMARY"
+          if [[ -x Scripts/package-dmg.sh ]]; then
+            ./Scripts/package-dmg.sh artifacts
+          fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ steps.version.outputs.name }}

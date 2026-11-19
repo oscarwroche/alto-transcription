@@ -1,11 +1,15 @@
 import SwiftUI
+import Sparkle
 import UniformTypeIdentifiers
 
 @main
 struct AltoTranscriptionApp: App {
+    private let updates: SPUStandardUpdaterController
+
     init() {
         // AppKit's document picker is useful for Open, but a fresh launch should start in the editor.
         UserDefaults.standard.register(defaults: ["NSShowAppCentricOpenPanelInsteadOfUntitledFile": false])
+        updates = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
     }
 
     var body: some Scene {
@@ -15,6 +19,35 @@ struct AltoTranscriptionApp: App {
                 .frame(minWidth: 800, minHeight: 570)
         }
         .defaultSize(width: 940, height: 720)
+        .commands {
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesButton(updater: updates.updater)
+            }
+        }
+    }
+}
+
+@MainActor
+private final class UpdateAvailability: ObservableObject {
+    @Published private(set) var canCheck = false
+
+    init(_ updater: SPUUpdater) {
+        updater.publisher(for: \.canCheckForUpdates).assign(to: &$canCheck)
+    }
+}
+
+private struct CheckForUpdatesButton: View {
+    let updater: SPUUpdater
+    @StateObject private var availability: UpdateAvailability
+
+    init(updater: SPUUpdater) {
+        self.updater = updater
+        _availability = StateObject(wrappedValue: UpdateAvailability(updater))
+    }
+
+    var body: some View {
+        Button("Check for Updates…", action: updater.checkForUpdates)
+            .disabled(!availability.canCheck)
     }
 }
 

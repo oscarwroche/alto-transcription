@@ -1,15 +1,15 @@
 # Alto Transcription
 
-A native SwiftUI app for transcribing solos by ear into written E♭ alto saxophone notation. It runs on macOS 14 or later and uses only Apple frameworks.
+A native SwiftUI app for transcribing solos by ear into written E♭ alto saxophone notation. It runs on macOS 14 or later. The app uses Apple frameworks for the editor and playback, and Sparkle for user-initiated updates.
 
-Build the app with Xcode 16 or later installed:
+Build and test with Xcode 26 installed:
 
 ```sh
 ./Scripts/build-app.sh
 swift test
 ```
 
-Open `dist/Alto Transcription.app` to start with a blank score. Use **Open Project…** or **Recent Projects** to resume a project, or drag one recording from Finder onto the editor. **Import Audio…** opens the file picker. Once loaded, click the waveform to seek or drag across it to set and activate an A/B loop. Slow the recording to 50–100% using the speed slider. Use the magnifiers to zoom around the playhead and the slider below the zoomed waveform to pan. Click the zoom level to show the whole recording. Save with ⌘S and open saved `.alto` files through Finder or the File menu. Each project stores its notation and audio controls in JSON and references the original recording on disk. If macOS cannot locate the source, use **Relink Audio**.
+Open `dist/Alto Transcription Updates.app` to start with a blank score. Use **Open Project…** or **Recent Projects** to resume a project, or drag one recording from Finder onto the editor. **Import Audio…** opens the file picker. Once loaded, click the waveform to seek, then press ⌥A or ⌥B to set a marker at the playhead. You can also drag across an open part of the waveform to set and activate both markers at once. Grab the A or B handle and release it at the new position to adjust that end of the loop. Slow the recording to 50–100% using the speed slider. Use the magnifiers to zoom around the playhead and the slider below the zoomed waveform to pan. Click the zoom level to show the whole recording. Save with ⌘S and open saved `.alto` files through Finder or the File menu. Each project stores its notation and audio controls in JSON and references the original recording on disk. If macOS cannot locate the source, use **Relink Audio**.
 
 | Shortcut | Action |
 | --- | --- |
@@ -28,7 +28,7 @@ Open `dist/Alto Transcription.app` to start with a blank score. Use **Open Proje
 | [ / ] / backslash | Set flat, sharp, or natural |
 | Delete | Delete the selected event or the last event |
 
-Click the empty space at the end of the score to write a note at that height. Click an existing event to select it and drag vertically to change its pitch. Use **Insert** or Return to add an event before the selection. The score uses written alto pitches in treble clef, with a C key signature and 4/4 by default. Use **Key** to choose a signature for the written part. Unmarked notes follow the signature, and accidentals override it. You can also select 3/4, 5/4, or 6/8. Durations that cross barlines are split automatically and pitched fragments are tied together. The app records the pitches you enter as written alto pitches. The source audio keeps its original pitch.
+Click a notehead to select it, then click a line or space in the music area of that staff to change its pitch. Press **End** to advance to the entry cursor, then click past the last note to add a note at that height. Use **Insert** or Return to add an event before the selection. The score uses written alto pitches in treble clef, with a C key signature and 4/4 by default. Use **Key** to choose a signature for the written part. Unmarked notes follow the signature, and accidentals override it. You can also select 3/4, 5/4, or 6/8. Durations that cross barlines are split automatically and pitched fragments are tied together. The app records the pitches you enter as written alto pitches. The source audio keeps its original pitch.
 
 Scroll vertically through the wrapped score and click any note to edit it. Use **Score Zoom** to make the notation larger or smaller. The transport stays above the score while you scroll. The score and recording are independent, so you can replay or slow down any passage without moving the score selection.
 
@@ -38,7 +38,9 @@ The test suite renders the production audio graph offline and exercises waveform
 
 ## Builds and releases
 
-In GitHub, open **Actions → Build macOS app → Run workflow**. Leave **Existing version tag to build** blank to build the selected branch, or enter a tag such as `v1.3.5` to build that exact version. The workflow runs the release test suite, builds an Apple Silicon app, and uploads a ZIP, SHA-256 checksum, and build record with the source commit and toolchain. It also checks pushes to `main` and pull requests.
+Open the release disk image and drag **Alto Transcription Updates** into the **Applications** shortcut when you want to install it. It installs alongside **Alto Transcription** and uses the same `.alto` format with a separate Recent Projects list. In the new app, use **Alto Transcription Updates → Check for Updates…** when you want to install a newer GitHub build. Save any open project before clicking **Install and Relaunch**.
+
+In GitHub, open **Actions → Build macOS app → Run workflow**. Leave **Existing version tag to build** blank to build the selected branch, or enter a tag such as `v1.3.6` to build that exact version. The workflow runs the release test suite, builds an Apple Silicon app, and uploads a ZIP and, starting with v1.3.6, a disk image. The artifacts include SHA-256 checksums and a build record with the source commit and toolchain. It also checks pushes to `main` and pull requests. To build a disk image locally, run `./Scripts/package-dmg.sh` after `./Scripts/build-app.sh`.
 
 For a release:
 
@@ -51,7 +53,8 @@ For a release:
    gh workflow run build-macos.yml --ref main -f release_tag=v1.3.6
    ```
 
-3. Download the artifact from the successful tagged build and verify the ZIP with `shasum -a 256 -c <filename>.zip.sha256`. Open the app from Finder and smoke-test blank launch, Finder drag-and-drop and the audio picker, playback and looping, note editing, save and reopen, and PDF export.
-4. Create a GitHub Release for the existing tag. Include the changes, the ZIP, its checksum, and `BUILD.txt`. Use the prerelease designation for ad hoc builds.
+3. Verify the disk image with `shasum -a 256 -c <filename>.dmg.sha256`. Open the app from Finder and smoke-test blank launch, Finder drag-and-drop and the audio picker, playback and looping, note editing, save and reopen, and PDF export. Test a separate copy alongside the existing app in Applications. Test the update from the last version in a disposable folder.
+4. Create a GitHub Release for the existing tag. Attach the tested disk image, the update ZIP of the same bundle, their checksums, and `BUILD.txt`. Use the prerelease designation for ad hoc builds.
+5. Generate the signed appcast with `./Scripts/make-appcast.sh path/to/update.zip path/to/Sparkle/bin/sign_update Updates/appcast.xml`. The signing key stays in the release Mac's login Keychain under the Sparkle account `com.altotranscription.updates`. Use the signing tool from the [pinned Sparkle release](https://github.com/sparkle-project/Sparkle/releases/tag/2.10.1). Verify that the GitHub ZIP is available, then commit and push `Updates/appcast.xml`. Existing apps read this file when the user checks for updates.
 
-The workflow currently uses ad hoc signing for testing. Distribution to other Macs requires a [Developer ID signature and Apple notarization](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution) for normal Gatekeeper approval.
+The workflow currently uses ad hoc app signing for testing. Normal Gatekeeper approval of the initial download on other Macs requires a [Developer ID signature and Apple notarization](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution). Sparkle checks the signatures of the feed and update archive before installing an update.

@@ -3,7 +3,7 @@
 - Preserve every existing user-facing workflow outside the requested change. Never remove, hide, or replace a control, import path, shortcut, or file behavior as part of an unrelated fix. If preserving it conflicts with the request, explain the conflict and get explicit approval before changing it.
 - Before changing a UI workflow, identify how the customer actually uses it and check it in the copy they are using. Record the app path and version and the exact action you tried. If the customer reports a working behavior you cannot reproduce or find in the source, treat it as a workflow to protect and state what you could verify.
 - Test Finder drag and drop of a real audio file into the editor as its own workflow. Opening the same file with the file picker does not verify it. For releases that touch import, project opening, or the main UI, verify both paths, playback and looping, and opening a saved project in the release bundle.
-- Build and stage an update when live testing is blocked. Keep the previous copy in Applications until the affected workflows have passed a live check in the release build, unless the user explicitly asks to install it before that check. After installation, verify the installed version and check the requested workflow there.
+- Leave existing copies in Applications available and unchanged during development, testing, and release. Test the exact new version in a separate bundle. Offer Alto Transcription Updates for opt-in install, and test in-app updates on a disposable copy. Replace an existing copy only at the user's explicit request.
 
 # Git history
 
