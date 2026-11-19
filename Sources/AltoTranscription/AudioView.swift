@@ -29,7 +29,7 @@ struct AudioView: View {
                     .keyboardShortcut("i", modifiers: .command)
             }
             Waveform(audio: audio, settings: settings, window: window, dropTargeted: dropTargeted,
-                     seek: seek, select: selectRegion)
+                     seek: seek, select: selectRegion, moveMarkers: { settings = $0 })
             if zoom > 1, window.maxStart > 0 {
                 HStack {
                     Text(recordingTime(window.start))
@@ -47,7 +47,7 @@ struct AudioView: View {
             } else if let waveformError = audio.waveformError {
                 Text("Waveform unavailable: \(waveformError)").font(.caption).foregroundStyle(.secondary)
             } else {
-                Text("Click to seek. Drag to set an A/B loop. Space plays or pauses. ⌥A and ⌥B set markers. ⌥L toggles looping.")
+                Text("Click to seek. Drag to set a loop, or grab A or B to move it. Space plays or pauses. ⌥A / ⌥B set markers. ⌥L toggles looping.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -265,12 +265,19 @@ struct WaveformWindow {
 }
 
 private struct Waveform: View {
+    private struct MarkerPosition {
+        let marker: LoopMarker
+        let x: CGFloat
+        let badge: CGRect
+    }
+
     let audio: AudioTransport
     let settings: PlaybackSettings
     let window: WaveformWindow
     let dropTargeted: Bool
     let seek: (Double) -> Void
     let select: (Double, Double) -> Void
+    let moveMarkers: (PlaybackSettings) -> Void
     @GestureState private var drag: DragGesture.Value?
 
     var body: some View {
@@ -279,29 +286,25 @@ private struct Waveform: View {
             ZStack {
                 Canvas { context, size in
                     guard window.span > 0 else { return }
+                    let moved = drag.flatMap { resizedLoop(for: $0, width: width) }
+                    let displayed = moved ?? settings
                     drawPeaks(in: context, size: size)
-                    if let drag, abs(drag.translation.width) > 4 {
-                        band(min(drag.startLocation.x, drag.location.x), max(drag.startLocation.x, drag.location.x),
+                    if let drag, moved == nil, abs(drag.translation.width) > 4 {
+                        let end = min(max(drag.location.x, 0), width)
+                        band(min(drag.startLocation.x, end), max(drag.startLocation.x, end),
                              in: context, height: size.height, opacity: 0.28)
-                    } else if let region = settings.region(in: audio.duration) {
+                    } else if let region = displayed.region(in: audio.duration) {
                         let a = max(region.lowerBound, window.start)
                         let b = min(region.upperBound, window.end)
                         if a < b {
                             band(window.x(a, width: width), window.x(b, width: width),
-                                 in: context, height: size.height, opacity: settings.looping ? 0.22 : 0.09)
+                                 in: context, height: size.height, opacity: displayed.looping ? 0.22 : 0.09)
                         }
-                    }
-                    for (name, time) in [("A", settings.a), ("B", settings.b)] {
-                        guard let time, (window.start...window.end).contains(time) else { continue }
-                        let marker = window.x(time, width: width)
-                        line(marker, in: context, height: size.height, color: .accentColor.opacity(0.75))
-                        let labelX = min(max(marker + 9, 9), width - 9)
-                        context.draw(Text(name).font(.caption2.bold()).foregroundStyle(Color.accentColor),
-                                     at: CGPoint(x: labelX, y: 10))
                     }
                     if (window.start...window.end).contains(audio.position) {
                         line(window.x(audio.position, width: width), in: context, height: size.height, color: .primary)
                     }
+                    drawMarkers(displayed, in: context, size: size)
                 }
                 if dropTargeted || audio.loadedURL == nil || audio.waveformLoading {
                     Text(dropTargeted ? "Drop to load recording" :
@@ -317,8 +320,13 @@ private struct Waveform: View {
                     guard audio.duration > 0, width > 0 else { return }
                     let a = window.time(value.startLocation.x, width: width)
                     let b = window.time(value.location.x, width: width)
-                    if abs(value.translation.width) > 4 { select(min(a, b), max(a, b)) }
-                    else { seek(b) }
+                    if let moved = resizedLoop(for: value, width: width) {
+                        moveMarkers(moved)
+                    } else if abs(value.translation.width) > 4 {
+                        select(min(a, b), max(a, b))
+                    } else {
+                        seek(b)
+                    }
                 })
         }
         .frame(height: 96)
@@ -336,6 +344,43 @@ private struct Waveform: View {
         .accessibilityAdjustableAction { direction in
             guard audio.duration > 0 else { return }
             seek(audio.position + (direction == .increment ? 5 : -5))
+        }
+    }
+
+    private func resizedLoop(for drag: DragGesture.Value, width: CGFloat) -> PlaybackSettings? {
+        guard abs(drag.translation.width) > 4 else { return nil }
+        let positions = markers(settings, width: width)
+        let position = positions.first { $0.badge.contains(drag.startLocation) } ??
+            positions.filter { abs($0.x - drag.startLocation.x) <= 8 }
+                .min { abs($0.x - drag.startLocation.x) < abs($1.x - drag.startLocation.x) }
+        guard let position else { return nil }
+        let time = window.time(position.x + drag.translation.width, width: width)
+        return settings.moving(position.marker, to: time, duration: audio.duration)
+    }
+
+    private func markers(_ playback: PlaybackSettings, width: CGFloat) -> [MarkerPosition] {
+        let badgeWidth: CGFloat = 18
+        var positions: [MarkerPosition] = []
+        for marker in LoopMarker.allCases {
+            guard let time = playback[marker], (window.start...window.end).contains(time) else { continue }
+            let x = window.x(time, width: width)
+            let left = min(max(0, x - badgeWidth / 2), max(0, width - badgeWidth))
+            let top: CGFloat = positions.contains { abs($0.badge.minX - left) < badgeWidth + 3 } ? 22 : 3
+            positions.append(MarkerPosition(marker: marker, x: x,
+                                            badge: CGRect(x: left, y: top, width: badgeWidth, height: 16)))
+        }
+        return positions
+    }
+
+    private func drawMarkers(_ playback: PlaybackSettings, in context: GraphicsContext, size: CGSize) {
+        let positions = markers(playback, width: size.width)
+        for position in positions {
+            line(position.x, in: context, height: size.height, color: .accentColor, width: 3)
+        }
+        for position in positions {
+            context.fill(Path(roundedRect: position.badge, cornerRadius: 3), with: .color(.accentColor))
+            context.draw(Text(position.marker.rawValue).font(.caption2.bold()).foregroundStyle(.white),
+                         at: CGPoint(x: position.badge.midX, y: position.badge.midY))
         }
     }
 
@@ -367,10 +412,10 @@ private struct Waveform: View {
                      with: .color(.accentColor.opacity(opacity)))
     }
 
-    private func line(_ x: CGFloat, in context: GraphicsContext, height: CGFloat, color: Color) {
+    private func line(_ x: CGFloat, in context: GraphicsContext, height: CGFloat, color: Color, width: CGFloat = 1.3) {
         var path = Path()
         path.move(to: CGPoint(x: x, y: 0))
         path.addLine(to: CGPoint(x: x, y: height))
-        context.stroke(path, with: .color(color), lineWidth: 1.3)
+        context.stroke(path, with: .color(color), lineWidth: width)
     }
 }

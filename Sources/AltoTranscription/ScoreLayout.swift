@@ -71,6 +71,16 @@ struct ScoreLayout {
         return nearestEvent(to: x)
     }
 
+    func event(at point: CGPoint) -> Int? {
+        fragments.first { fragment in
+            guard abs(fragment.x - point.x) <= 10 else { return false }
+            if let pitch = fragment.pitch {
+                return abs(Self.y(for: pitch) - point.y) < Self.step
+            }
+            return abs(Self.y(for: 4) - point.y) <= 20
+        }?.index
+    }
+
     private func nearestEvent(to x: CGFloat) -> Int? {
         fragments.min { abs($0.x - x) < abs($1.x - x) }?.index
     }

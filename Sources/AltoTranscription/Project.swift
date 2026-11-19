@@ -85,6 +85,11 @@ struct ScoreEvent: Codable, Equatable {
     }
 }
 
+enum LoopMarker: String, CaseIterable {
+    case start = "A"
+    case end = "B"
+}
+
 struct PlaybackSettings: Codable, Equatable {
     static let minimumLoop = 0.05
     var speed = 1.0
@@ -93,8 +98,29 @@ struct PlaybackSettings: Codable, Equatable {
     var looping = false
 
     func region(in duration: Double) -> Range<Double>? {
-        guard let a, let b, a >= 0, b <= duration, b - a >= Self.minimumLoop else { return nil }
+        guard let a, let b, a >= 0, b <= duration, a + Self.minimumLoop <= b else { return nil }
         return a..<b
+    }
+
+    subscript(marker: LoopMarker) -> Double? {
+        switch marker {
+        case .start: a
+        case .end: b
+        }
+    }
+
+    func moving(_ marker: LoopMarker, to time: Double, duration: Double) -> Self {
+        var updated = self
+        switch marker {
+        case .start:
+            let latest = b.map { max(0, ($0 - Self.minimumLoop).nextDown) } ?? duration
+            updated.a = min(max(0, time), min(duration, latest))
+        case .end:
+            let earliest = a.map { $0 + Self.minimumLoop } ?? 0
+            updated.b = min(duration, max(earliest, time))
+        }
+        if updated.region(in: duration) == nil { updated.looping = false }
+        return updated
     }
 }
 

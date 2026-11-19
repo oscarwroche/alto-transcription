@@ -41,7 +41,7 @@ struct ScoreView: View {
             scoreSettings
             controls
             staff
-            Text("Click after the last note to write. Drag a note vertically to change its pitch. A–G writes or edits, ↑↓ moves pitch, ←→ selects, Return inserts.")
+            Text("Select a note, then click a line or space on its staff to move it. End returns to note entry. A–G writes or edits, ↑↓ moves pitch, ←→ selects, Return inserts.")
                 .font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -176,20 +176,28 @@ struct ScoreView: View {
             .scaleEffect(scale, anchor: .topLeading)
             .frame(width: width * scale, height: height * scale, alignment: .topLeading)
             .contentShape(Rectangle())
-            .gesture(DragGesture(minimumDistance: 0).onEnded { gesture in
-                focused = true
-                guard let index = row.index(at: gesture.startLocation.x / scale, entryIndex: isLast ? notes.count : nil)
-                else { return }
-                cursor = index
-                if index == notes.count || abs(gesture.translation.height) >= 3 {
-                    writePitch(ScoreLayout.pitch(at: gesture.location.y / scale))
-                }
+            .gesture(SpatialTapGesture().onEnded { tap in
+                let point = CGPoint(x: tap.location.x / scale, y: tap.location.y / scale)
+                clickStaff(at: point, in: row, isLast: isLast)
             })
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Bar \(row.firstBar), written E-flat alto saxophone, \(meter.numerator) over \(meter.denominator)")
             .accessibilityValue(row.fragments.contains { $0.index == cursor } || (isLast && cursor == notes.count)
                 ? "Selected: \(selected.pitchLabel(in: key))" : "")
             .accessibilityHint("Use the arrow keys to select or change pitch. Press Return to insert.")
+    }
+
+    private func clickStaff(at point: CGPoint, in row: ScoreLayout, isLast: Bool) {
+        focused = true
+        if let index = row.event(at: point) {
+            cursor = index
+        } else if point.x >= row.firstX - 22, cursor < notes.count, selected.pitch != nil,
+                  row.fragments.contains(where: { $0.index == cursor }) {
+            writePitch(ScoreLayout.pitch(at: point.y))
+        } else if let index = row.index(at: point.x, entryIndex: isLast ? notes.count : nil) {
+            cursor = index
+            if index == notes.count { writePitch(ScoreLayout.pitch(at: point.y)) }
+        }
     }
 
     private func handle(_ press: KeyPress) -> KeyPress.Result {

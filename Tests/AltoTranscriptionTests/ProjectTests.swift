@@ -105,6 +105,37 @@ import Testing
     #expect(full.centered(on: 180, zoom: 8).end == 180)
 }
 
+@Test func draggingMarkersKeepsTheOtherEndpointAndTheLoopState() throws {
+    let active = PlaybackSettings(speed: 0.75, a: 2, b: 4, looping: true)
+    let start = active.moving(.start, to: 20, duration: 10)
+    #expect(start.b == active.b)
+    #expect(start.looping)
+    #expect(start.speed == active.speed)
+    let startRegion = try #require(start.region(in: 10))
+    #expect(abs(startRegion.lowerBound - 3.95) < 0.0001)
+
+    let end = active.moving(.end, to: -5, duration: 10)
+    #expect(end.a == active.a)
+    #expect(end.looping)
+    #expect(end.region(in: 10)?.upperBound == 2.05)
+    #expect(active.moving(.start, to: -5, duration: 10).a == 0)
+    #expect(active.moving(.end, to: 100, duration: 10).b == 10)
+
+    let singleMarker = PlaybackSettings(a: 2).moving(.start, to: 3, duration: 10)
+    #expect(singleMarker.a == 3)
+    #expect(singleMarker.b == nil)
+    #expect(!singleMarker.looping)
+}
+
+@Test func clickingTheNextStaffSpaceDoesNotHitTheSelectedNotehead() throws {
+    let layout = ScoreLayout([ScoreEvent(pitch: 4), ScoreEvent(pitch: 6), ScoreEvent(pitch: nil)])
+    let note = try #require(layout.fragments.first)
+    let rest = try #require(layout.fragments.last)
+    #expect(layout.event(at: CGPoint(x: note.x, y: ScoreLayout.y(for: 4))) == 0)
+    #expect(layout.event(at: CGPoint(x: note.x, y: ScoreLayout.y(for: 5))) == nil)
+    #expect(layout.event(at: CGPoint(x: rest.x, y: ScoreLayout.y(for: 4))) == 2)
+}
+
 @Test @MainActor func scoresWrapAndExportToMultiplePrintablePages() throws {
     let notes = Array(repeating: ScoreEvent(pitch: 8, value: .sixteenth), count: 80)
     let layout = ScoreLayout(notes, key: .bFlat, spacing: 0.78)
