@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 15
     defaults:
       run:
@@ -59,8 +59,16 @@ jobs:
         run: |
           swift --version
           xcodebuild -version
-          swift test -c release
+          swift test -c release --no-parallel
           ./Scripts/build-app.sh
+      - name: Report test crashes
+        if: failure()
+        run: |
+          reports="$HOME/Library/Logs/DiagnosticReports"
+          if [[ -d "$reports" ]]; then
+            find "$reports" -maxdepth 1 -name 'AltoTranscriptionPackageTests*' -print -exec head -c 20000 {} \;
+          fi
+          log show --last 2m --style compact --predicate 'process BEGINSWITH "AltoTranscriptionPackageTests"' | tail -60
       - name: Package and verify app
         env:
           ASSET_NAME: ${{ steps.version.outputs.name }}
