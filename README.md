@@ -35,3 +35,23 @@ Scroll vertically through the wrapped score and click any note to edit it. Use *
 Use **Clear Score…** to remove every note and rest while keeping the recording and project settings. Press ⌘Z to restore the score after clearing it. Use **Export PDF…** to save a printable copy of the notation. The PDF heading uses the recording filename without its extension. A project with no recording uses the project name. Longer scores wrap across staff lines and pages. Open the PDF in Preview to print it. Save the .alto project as well if you want to keep editing.
 
 The test suite renders the production audio graph offline and exercises waveform generation, speed and pitch, repeated loop boundaries, seek, and project restoration.
+
+## Builds and releases
+
+In GitHub, open **Actions → Build macOS app → Run workflow**. Leave **Existing version tag to build** blank to build the selected branch, or enter a tag such as `v1.3.5` to build that exact version. The workflow runs the release test suite, builds an Apple Silicon app, and uploads a ZIP, SHA-256 checksum, and build record with the source commit and toolchain. It also checks pushes to `main` and pull requests.
+
+For a release:
+
+1. Update `CFBundleShortVersionString` in `Scripts/Info.plist` using version numbers in the form `major.minor.patch`. Increase the integer `CFBundleVersion` on every release. Commit and push the changes.
+2. Tag the release commit with the matching version and push the tag. Keep published tags and their assets fixed. Use a new version for corrections.
+
+   ```sh
+   git tag -a v1.3.6 -m "Alto Transcription 1.3.6"
+   git push origin v1.3.6
+   gh workflow run build-macos.yml --ref main -f release_tag=v1.3.6
+   ```
+
+3. Download the artifact from the successful tagged build and verify the ZIP with `shasum -a 256 -c <filename>.zip.sha256`. Open the app from Finder and smoke-test blank launch, Finder drag-and-drop and the audio picker, playback and looping, note editing, save and reopen, and PDF export.
+4. Create a GitHub Release for the existing tag. Include the changes, the ZIP, its checksum, and `BUILD.txt`. Use the prerelease designation for ad hoc builds.
+
+The workflow currently uses ad hoc signing for testing. Distribution to other Macs requires a [Developer ID signature and Apple notarization](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution) for normal Gatekeeper approval.
