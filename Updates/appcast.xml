@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
+IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>Alto Transcription Updates</title>
+    <item>
+      <title>Alto Transcription 1.3.6</title>
+      <sparkle:version>10</sparkle:version>
+      <sparkle:shortVersionString>1.3.6</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <enclosure url="https://github.com/oscarwroche/alto-transcription/releases/download/v1.3.6/Alto-Transcription-v1.3.6-macOS-arm64.zip" sparkle:edSignature="pZdkDTqNHG/c95R9+KF39wnyqJ/W2qO//6rqIJT5HioQXkFpVup9EH/aXwDLcQOcZtbJN6IWnwzceziHWmnBBQ==" length="1335668" type="application/zip"></enclosure>
+    </item>
+  </channel>
+</rss><!-- sparkle-signatures:
+edSignature: 07Dstj3z0e8IB9CnJ9HSIgq04QBlLDA0UIJ27h8H1Rd7+V/F2QgizyZqvuqBDtfnPRVjr+0n3CKqLQWIKC5OAQ==
+length: 1014
+-->
