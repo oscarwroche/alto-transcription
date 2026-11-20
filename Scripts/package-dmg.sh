@@ -20,7 +20,7 @@ ln -s /Applications "$stage/Applications"
 
 mkdir -p "$output_dir"
 dmg_name="Alto-Transcription-v$version-macOS-$(uname -m).dmg"
-hdiutil create -ov -format UDZO -volname "Alto Transcription $version" -srcfolder "$stage" "$output_dir/$dmg_name"
+hdiutil create -ov -format UDZO -volname "Body & Soul $version" -srcfolder "$stage" "$output_dir/$dmg_name"
 hdiutil verify "$output_dir/$dmg_name"
 (
   cd "$output_dir"

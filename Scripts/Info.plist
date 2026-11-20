@@ -4,10 +4,13 @@
 <dict>
     <key>CFBundleExecutable</key><string>AltoTranscription</string>
     <key>CFBundleIdentifier</key><string>com.altotranscription.updates</string>
+    <key>CFBundleDevelopmentRegion</key><string>en</string>
+    <!-- Match the installed filename. InfoPlist.strings provides the displayed name. -->
     <key>CFBundleName</key><string>Alto Transcription Updates</string>
+    <key>CFBundleDisplayName</key><string>Alto Transcription Updates</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>1.3.6</string>
-    <key>CFBundleVersion</key><string>10</string>
+    <key>CFBundleShortVersionString</key><string>1.3.7</string>
+    <key>CFBundleVersion</key><string>11</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>SUFeedURL</key><string>https://raw.githubusercontent.com/oscarwroche/alto-transcription/main/Updates/appcast.xml</string>
     <key>SUPublicEDKey</key><string>Q5I1pWUGNL6FtWGMHqeaxngpC5UJ9a03Xgno5o3/e08=</string>
@@ -20,7 +23,7 @@
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>
-            <key>CFBundleTypeName</key><string>Alto Transcription Project</string>
+            <key>CFBundleTypeName</key><string>Body &amp; Soul Project</string>
             <key>CFBundleTypeRole</key><string>Editor</string>
             <key>LSHandlerRank</key><string>Alternate</string>
             <key>LSItemContentTypes</key><array><string>com.altotranscription.project</string></array>
@@ -30,7 +33,7 @@
     <array>
         <dict>
             <key>UTTypeIdentifier</key><string>com.altotranscription.project</string>
-            <key>UTTypeDescription</key><string>Alto Transcription Project</string>
+            <key>UTTypeDescription</key><string>Body &amp; Soul Project</string>
             <key>UTTypeConformsTo</key><array><string>public.json</string></array>
             <key>UTTypeTagSpecification</key>
             <dict><key>public.filename-extension</key><array><string>alto</string></array></dict>

@@ -11,9 +11,10 @@ app_name=$(plutil -extract CFBundleName raw Scripts/Info.plist)
 mkdir -p "$output_dir"
 app="$(cd "$output_dir" && pwd)/$app_name.app"
 framework="$app/Contents/Frameworks/Sparkle.framework"
-mkdir -p "$app/Contents/MacOS" "$app/Contents/Frameworks"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Frameworks" "$app/Contents/Resources/en.lproj"
 cp "$bin_path/AltoTranscription" "$app/Contents/MacOS/AltoTranscription"
 cp Scripts/Info.plist "$app/Contents/Info.plist"
+cp Scripts/InfoPlist.strings "$app/Contents/Resources/en.lproj/InfoPlist.strings"
 ditto "$bin_path/Sparkle.framework" "$framework"
 
 if [[ -n "$identity" ]]; then

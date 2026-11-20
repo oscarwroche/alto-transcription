@@ -15,7 +15,7 @@ struct AltoTranscriptionApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: Project()) { configuration in
             ProjectView(project: configuration.$document,
-                        title: configuration.fileURL?.deletingPathExtension().lastPathComponent ?? "Alto Transcription")
+                        title: configuration.fileURL?.deletingPathExtension().lastPathComponent ?? "Body & Soul")
                 .frame(minWidth: 800, minHeight: 570)
         }
         .defaultSize(width: 940, height: 720)

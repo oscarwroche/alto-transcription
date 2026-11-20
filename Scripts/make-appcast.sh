@@ -28,9 +28,9 @@ cat >"$appcast" <<EOF
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>Alto Transcription Updates</title>
+    <title>Body &amp; Soul Updates</title>
     <item>
-      <title>Alto Transcription $version</title>
+      <title>Body &amp; Soul $version</title>
       <sparkle:version>$build</sparkle:version>
       <sparkle:shortVersionString>$version</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>$minimum_os</sparkle:minimumSystemVersion>
