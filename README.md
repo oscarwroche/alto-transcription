@@ -2,6 +2,8 @@
 
 A native SwiftUI app for transcribing solos by ear into written E♭ alto saxophone notation. It runs on macOS 14 or later. The app uses Apple frameworks for the editor and playback, and Sparkle for user-initiated updates.
 
+Visit the [Alto Transcription homepage](https://oscarwroche.github.io/alto-transcription/) for screenshots, a download, and installation steps.
+
 Build and test with Xcode 26 installed:
 
 ```sh
@@ -56,6 +58,7 @@ For a release:
 3. Verify the disk image with `shasum -a 256 -c <filename>.dmg.sha256`. Open the app from Finder and smoke-test blank launch, Finder drag-and-drop and the audio picker, playback and looping, note editing, save and reopen, and PDF export. Test a separate copy alongside the existing app in Applications. Test the update from the last version in a disposable folder.
 4. Create a GitHub Release for the existing tag. Attach the tested disk image, the update ZIP of the same bundle, their checksums, and `BUILD.txt`. Use the prerelease designation for ad hoc builds.
 5. Generate the signed appcast with `./Scripts/make-appcast.sh path/to/update.zip path/to/Sparkle/bin/sign_update Updates/appcast.xml`. The signing key stays in the release Mac's login Keychain under the Sparkle account `com.altotranscription.updates`. Use the signing tool from the [pinned Sparkle release](https://github.com/sparkle-project/Sparkle/releases/tag/2.10.1). Verify that the GitHub ZIP is available, then commit and push `Updates/appcast.xml`. Existing apps read this file when the user checks for updates.
+6. After verifying the public DMG download, update the homepage download URL in `docs/index.html` and check that its requirements and first-launch steps still match the release. GitHub Pages publishes from `main` in the `docs` folder.
 
 ### Developer ID builds
 
