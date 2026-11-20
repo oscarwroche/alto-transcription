@@ -57,4 +57,20 @@ For a release:
 4. Create a GitHub Release for the existing tag. Attach the tested disk image, the update ZIP of the same bundle, their checksums, and `BUILD.txt`. Use the prerelease designation for ad hoc builds.
 5. Generate the signed appcast with `./Scripts/make-appcast.sh path/to/update.zip path/to/Sparkle/bin/sign_update Updates/appcast.xml`. The signing key stays in the release Mac's login Keychain under the Sparkle account `com.altotranscription.updates`. Use the signing tool from the [pinned Sparkle release](https://github.com/sparkle-project/Sparkle/releases/tag/2.10.1). Verify that the GitHub ZIP is available, then commit and push `Updates/appcast.xml`. Existing apps read this file when the user checks for updates.
 
-The workflow currently uses ad hoc app signing for testing. Normal Gatekeeper approval of the initial download on other Macs requires a [Developer ID signature and Apple notarization](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution). Sparkle checks the signatures of the feed and update archive before installing an update.
+### Developer ID builds
+
+GitHub Actions produces ad hoc test builds. For public Mac downloads, build and notarize on a Mac with a **Developer ID Application** signing identity in its login Keychain. The signing identity includes both the certificate and its private key. [Apple’s Developer ID guide](https://developer.apple.com/developer-id/)
+
+Store credentials for notarization once. Run the following in Terminal with your Apple Account and Developer Team ID. Enter an [app-specific password](https://support.apple.com/en-us/102654) at the secure prompt.
+
+```sh
+xcrun notarytool store-credentials alto-notary --apple-id 'you@example.com' --team-id 'YOUR_TEAM_ID'
+```
+
+From a clean checkout of the release tag, run the release script with the certificate name from `security find-identity -v -p codesigning`:
+
+```sh
+./Scripts/notarize-release.sh 'Developer ID Application: Your Name (YOUR_TEAM_ID)'
+```
+
+The script signs the app and its Sparkle helpers, submits the app and disk image to Apple, and verifies the attached notarization tickets. It writes the verified disk image, Sparkle update ZIP, checksums, and build record to `dist/notarized/`. Download and test the actual installer and the in-app upgrade before publishing. Sign the final stapled app ZIP with `make-appcast.sh` as described above.

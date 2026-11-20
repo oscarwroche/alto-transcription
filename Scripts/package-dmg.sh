@@ -4,7 +4,7 @@ cd "$(dirname "$0")/.."
 
 output_dir="${1:-dist}"
 app_name=$(plutil -extract CFBundleName raw Scripts/Info.plist)
-source_app="dist/$app_name.app"
+source_app="${ALTO_DIST_DIR:-dist}/$app_name.app"
 version=$(plutil -extract CFBundleShortVersionString raw "$source_app/Contents/Info.plist")
 if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "Expected a three-part app version in the built bundle." >&2
