@@ -7,7 +7,7 @@ if [[ $# -lt 1 || $# -gt 2 ]]; then
   exit 1
 fi
 identity=$1
-profile="${2:-alto-notary}"
+profile="${2:-body-and-soul-notary}"
 commit=$(git rev-parse HEAD)
 identities=$(security find-identity -v -p codesigning)
 if ! grep -qF 'Developer ID Application:' <<< "$identities"; then
@@ -39,7 +39,7 @@ ALTO_SIGN_IDENTITY="$identity" ALTO_DIST_DIR="$stage" ./Scripts/build-app.sh
 app_name=$(plutil -extract CFBundleName raw Scripts/Info.plist)
 version=$(plutil -extract CFBundleShortVersionString raw Scripts/Info.plist)
 arch=$(uname -m)
-asset_name="Alto-Transcription-v$version-macOS-$arch"
+asset_name="${app_name// /-}-v$version-macOS-$arch"
 app="$stage/$app_name.app"
 
 ditto -c -k --keepParent "$app" "$stage/submission.zip"

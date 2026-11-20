@@ -3,7 +3,7 @@ import Sparkle
 import UniformTypeIdentifiers
 
 @main
-struct AltoTranscriptionApp: App {
+struct BodyAndSoulApp: App {
     private let updates: SPUStandardUpdaterController
 
     init() {
@@ -15,7 +15,7 @@ struct AltoTranscriptionApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: Project()) { configuration in
             ProjectView(project: configuration.$document,
-                        title: configuration.fileURL?.deletingPathExtension().lastPathComponent ?? "Body & Soul")
+                        title: configuration.fileURL?.deletingPathExtension().lastPathComponent ?? "Body and Soul")
                 .frame(minWidth: 800, minHeight: 570)
         }
         .defaultSize(width: 940, height: 720)

@@ -8,13 +8,13 @@ identity="${ALTO_SIGN_IDENTITY:-}"
 swift build -c "$configuration"
 bin_path="$(swift build -c "$configuration" --show-bin-path)"
 app_name=$(plutil -extract CFBundleName raw Scripts/Info.plist)
+executable=$(plutil -extract CFBundleExecutable raw Scripts/Info.plist)
 mkdir -p "$output_dir"
 app="$(cd "$output_dir" && pwd)/$app_name.app"
 framework="$app/Contents/Frameworks/Sparkle.framework"
-mkdir -p "$app/Contents/MacOS" "$app/Contents/Frameworks" "$app/Contents/Resources/en.lproj"
-cp "$bin_path/AltoTranscription" "$app/Contents/MacOS/AltoTranscription"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Frameworks"
+cp "$bin_path/$executable" "$app/Contents/MacOS/$executable"
 cp Scripts/Info.plist "$app/Contents/Info.plist"
-cp Scripts/InfoPlist.strings "$app/Contents/Resources/en.lproj/InfoPlist.strings"
 ditto "$bin_path/Sparkle.framework" "$framework"
 
 if [[ -n "$identity" ]]; then

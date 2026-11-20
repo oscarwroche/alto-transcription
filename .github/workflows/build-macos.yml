@@ -1,4 +1,4 @@
-name: Build macOS app
+name: Build Body and Soul
 
 on:
   push:
@@ -54,7 +54,9 @@ jobs:
             echo "Tag $RELEASE_TAG does not match app version $version." >&2
             exit 1
           fi
-          echo "name=Alto-Transcription-v$version-macOS-arm64" >> "$GITHUB_OUTPUT"
+          app_name=$(plutil -extract CFBundleName raw Scripts/Info.plist)
+          asset_prefix=${app_name% Updates}
+          echo "name=${asset_prefix// /-}-v$version-macOS-arm64" >> "$GITHUB_OUTPUT"
       - name: Test and build
         run: |
           swift --version
@@ -83,7 +85,8 @@ jobs:
           ditto -x -k "artifacts/$zip" "$unpacked"
           extracted="$unpacked/$app_name.app"
           codesign --verify --deep --strict --verbose=2 "$extracted"
-          lipo "$extracted/Contents/MacOS/AltoTranscription" -verify_arch arm64
+          executable=$(plutil -extract CFBundleExecutable raw Scripts/Info.plist)
+          lipo "$extracted/Contents/MacOS/$executable" -verify_arch arm64
           (
             cd artifacts
             shasum -a 256 "$zip" > "$zip.sha256"

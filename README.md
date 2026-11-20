@@ -1,8 +1,8 @@
-# Body & Soul
+# Body and Soul
 
 A native SwiftUI app for transcribing music by ear into treble-clef notation. It runs on macOS 14 or later. The app uses Apple frameworks for the editor and playback, and Sparkle for user-initiated updates.
 
-Visit the [Body & Soul homepage](https://oscarwroche.github.io/alto-transcription/) for screenshots, a download, and installation steps. The project was originally called Alto Transcription.
+Visit the [Body and Soul homepage](https://oscarwroche.github.io/body-and-soul/) for screenshots, a download, and installation steps.
 
 Build and test with Xcode 26 installed:
 
@@ -11,7 +11,7 @@ Build and test with Xcode 26 installed:
 swift test
 ```
 
-Open `dist/Alto Transcription Updates.app` to start with a blank score. Use **Open Project…** or **Recent Projects** to resume a project, or drag one recording from Finder onto the editor. **Import Audio…** opens the file picker. Once loaded, click the waveform to seek, then press ⌥A or ⌥B to set a marker at the playhead. You can also drag across an open part of the waveform to set and activate both markers at once. Grab the A or B handle and release it at the new position to adjust that end of the loop. Slow the recording to 50–100% using the speed slider. Use the magnifiers to zoom around the playhead and the slider below the zoomed waveform to pan. Click the zoom level to show the whole recording. Save with ⌘S and open saved `.alto` files through Finder or the File menu. Each project stores its notation and audio controls in JSON and references the original recording on disk. If macOS cannot locate the source, use **Relink Audio**.
+Open `dist/Body and Soul.app` to start with a blank score. Use **Open Project…** or **Recent Projects** to resume a project, or drag one recording from Finder onto the editor. **Import Audio…** opens the file picker. Once loaded, click the waveform to seek, then press ⌥A or ⌥B to set a marker at the playhead. You can also drag across an open part of the waveform to set and activate both markers at once. Grab the A or B handle and release it at the new position to adjust that end of the loop. Slow the recording to 50–100% using the speed slider. Use the magnifiers to zoom around the playhead and the slider below the zoomed waveform to pan. Click the zoom level to show the whole recording. Save with ⌘S and open saved `.alto` files through Finder or the File menu. Each project stores its notation and audio controls in JSON and references the original recording on disk. If macOS cannot locate the source, use **Relink Audio**.
 
 | Shortcut | Action |
 | --- | --- |
@@ -32,7 +32,7 @@ Open `dist/Alto Transcription Updates.app` to start with a blank score. Use **Op
 
 Click a notehead to select it, then click a line or space in the music area of that staff to change its pitch. Press **End** to advance to the entry cursor, then click past the last note to add a note at that height. Use **Insert** or Return to add an event before the selection. The score uses treble clef, with a C key signature and 4/4 by default. Use **Key** to choose a signature for the written part. Unmarked notes follow the signature, and accidentals override it. You can also select 3/4, 5/4, or 6/8. Durations that cross barlines are split automatically and pitched fragments are tied together. The score stores the pitches you enter, and only the source recording plays back.
 
-Use **Instrument (optional)** to label the part, for example **B♭ clarinet**. The label is saved with the project and printed under the PDF title. Existing projects open with the field blank. The v1.3.6 download still displays the original E♭ alto saxophone label.
+Use **Instrument (optional)** to label the part, for example **B♭ clarinet**. The label is saved with the project and printed under the PDF title. Older projects open with the field blank.
 
 Scroll vertically through the wrapped score and click any note to edit it. Use **Score Zoom** to make the notation larger or smaller. The transport stays above the score while you scroll. The score and recording are independent, so you can replay or slow down any passage without moving the score selection.
 
@@ -42,9 +42,9 @@ The test suite renders the production audio graph offline and exercises waveform
 
 ## Builds and releases
 
-Open the release disk image and drag **Alto Transcription Updates** into the **Applications** shortcut when you want to install it. It installs alongside **Alto Transcription** and uses the same `.alto` format with a separate Recent Projects list. In the new app, use **Alto Transcription Updates → Check for Updates…** when you want to install a newer GitHub build. Save any open project before clicking **Install and Relaunch**.
+Open the release disk image and drag **Body and Soul** into the **Applications** shortcut. Use **Body and Soul → Check for Updates…** to install a newer GitHub build. Save any open project before clicking **Install and Relaunch**. Sparkle preserves the path of the app it updates, so an update over an older installation may keep its original filename in Finder.
 
-In GitHub, open **Actions → Build macOS app → Run workflow**. Leave **Existing version tag to build** blank to build the selected branch, or enter a tag such as `v1.3.6` to build that exact version. The workflow runs the release test suite, builds an Apple Silicon app, and uploads a ZIP and, starting with v1.3.6, a disk image. The artifacts include SHA-256 checksums and a build record with the source commit and toolchain. It also checks pushes to `main` and pull requests. To build a disk image locally, run `./Scripts/package-dmg.sh` after `./Scripts/build-app.sh`.
+In GitHub, open **Actions → Build Body and Soul → Run workflow**. Leave **Existing version tag to build** blank to build the selected branch, or enter a tag such as `v1.3.8` to build that exact version. The workflow runs the release test suite, builds an Apple Silicon app, and uploads a ZIP and disk image. The artifacts include SHA-256 checksums and a build record with the source commit and toolchain. It also checks pushes to `main` and pull requests. To build a disk image locally, run `./Scripts/package-dmg.sh` after `./Scripts/build-app.sh`.
 
 For a release:
 
@@ -52,9 +52,9 @@ For a release:
 2. Tag the release commit with the matching version and push the tag. Keep published tags and their assets fixed. Use a new version for corrections.
 
    ```sh
-   git tag -a v1.3.6 -m "Alto Transcription 1.3.6"
-   git push origin v1.3.6
-   gh workflow run build-macos.yml --ref main -f release_tag=v1.3.6
+   git tag -a v1.3.8 -m "Body and Soul 1.3.8"
+   git push origin v1.3.8
+   gh workflow run build-macos.yml --ref main -f release_tag=v1.3.8
    ```
 
 3. Verify the disk image with `shasum -a 256 -c <filename>.dmg.sha256`. Open the app from Finder and smoke-test blank launch, Finder drag-and-drop and the audio picker, playback and looping, note editing, save and reopen, and PDF export. Test a separate copy alongside the existing app in Applications. Test the update from the last version in a disposable folder.
@@ -69,7 +69,7 @@ GitHub Actions produces ad hoc test builds. For public Mac downloads, build and 
 Store credentials for notarization once. Run the following in Terminal with your Apple Account and Developer Team ID. Enter an [app-specific password](https://support.apple.com/en-us/102654) at the secure prompt.
 
 ```sh
-xcrun notarytool store-credentials alto-notary --apple-id 'you@example.com' --team-id 'YOUR_TEAM_ID'
+xcrun notarytool store-credentials body-and-soul-notary --apple-id 'you@example.com' --team-id 'YOUR_TEAM_ID'
 ```
 
 From a clean checkout of the release tag, run the release script with the certificate name from `security find-identity -v -p codesigning`:

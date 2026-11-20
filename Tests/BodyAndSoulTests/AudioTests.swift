@@ -1,6 +1,6 @@
 import AVFoundation
 import Testing
-@testable import AltoTranscription
+@testable import BodyAndSoul
 
 private let rate = 44_100.0
 

@@ -2,16 +2,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "AltoTranscription",
+    name: "BodyAndSoul",
     platforms: [.macOS(.v14)],
-    products: [.executable(name: "AltoTranscription", targets: ["AltoTranscription"])],
+    products: [.executable(name: "BodyAndSoul", targets: ["BodyAndSoul"])],
     dependencies: [.package(url: "https://github.com/sparkle-project/Sparkle.git", exact: "2.10.1")],
     targets: [
         .executableTarget(
-            name: "AltoTranscription",
+            name: "BodyAndSoul",
             dependencies: [.product(name: "Sparkle", package: "Sparkle")],
             linkerSettings: [.unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])]
         ),
-        .testTarget(name: "AltoTranscriptionTests", dependencies: ["AltoTranscription"])
+        .testTarget(name: "BodyAndSoulTests", dependencies: ["BodyAndSoul"])
     ]
 )

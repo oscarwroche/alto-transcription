@@ -1,7 +1,7 @@
 import Foundation
 import PDFKit
 import Testing
-@testable import AltoTranscription
+@testable import BodyAndSoul
 
 @Test func projectRoundTripKeepsWrittenNotesAndPlaybackSettings() throws {
     let url = URL(fileURLWithPath: "/tmp/solo.wav")
