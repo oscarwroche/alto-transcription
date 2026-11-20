@@ -1,8 +1,8 @@
-# Alto Transcription
+# Body & Soul
 
 A native SwiftUI app for transcribing music by ear into treble-clef notation. It runs on macOS 14 or later. The app uses Apple frameworks for the editor and playback, and Sparkle for user-initiated updates.
 
-Visit the [Alto Transcription homepage](https://oscarwroche.github.io/alto-transcription/) for screenshots, a download, and installation steps.
+Visit the [Body & Soul homepage](https://oscarwroche.github.io/alto-transcription/) for screenshots, a download, and installation steps. The project was originally called Alto Transcription.
 
 Build and test with Xcode 26 installed:
 
