@@ -1,6 +1,6 @@
 # Alto Transcription
 
-A native SwiftUI app for transcribing solos by ear into written E♭ alto saxophone notation. It runs on macOS 14 or later. The app uses Apple frameworks for the editor and playback, and Sparkle for user-initiated updates.
+A native SwiftUI app for transcribing music by ear into treble-clef notation. It runs on macOS 14 or later. The app uses Apple frameworks for the editor and playback, and Sparkle for user-initiated updates.
 
 Visit the [Alto Transcription homepage](https://oscarwroche.github.io/alto-transcription/) for screenshots, a download, and installation steps.
 
@@ -30,7 +30,7 @@ Open `dist/Alto Transcription Updates.app` to start with a blank score. Use **Op
 | [ / ] / backslash | Set flat, sharp, or natural |
 | Delete | Delete the selected event or the last event |
 
-Click a notehead to select it, then click a line or space in the music area of that staff to change its pitch. Press **End** to advance to the entry cursor, then click past the last note to add a note at that height. Use **Insert** or Return to add an event before the selection. The score uses written alto pitches in treble clef, with a C key signature and 4/4 by default. Use **Key** to choose a signature for the written part. Unmarked notes follow the signature, and accidentals override it. You can also select 3/4, 5/4, or 6/8. Durations that cross barlines are split automatically and pitched fragments are tied together. The app records the pitches you enter as written alto pitches. The source audio keeps its original pitch.
+Click a notehead to select it, then click a line or space in the music area of that staff to change its pitch. Press **End** to advance to the entry cursor, then click past the last note to add a note at that height. Use **Insert** or Return to add an event before the selection. The score uses treble clef, with a C key signature and 4/4 by default. Use **Key** to choose a signature for the written part. Unmarked notes follow the signature, and accidentals override it. You can also select 3/4, 5/4, or 6/8. Durations that cross barlines are split automatically and pitched fragments are tied together. The score stores the pitches you enter, and only the source recording plays back. The editor and PDF exports in the current beta carry the label “E♭ alto saxophone · written pitch.”
 
 Scroll vertically through the wrapped score and click any note to edit it. Use **Score Zoom** to make the notation larger or smaller. The transport stays above the score while you scroll. The score and recording are independent, so you can replay or slow down any passage without moving the score selection.
 
