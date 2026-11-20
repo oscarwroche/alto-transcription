@@ -9,6 +9,7 @@ import Testing
     #expect(project.meter == .fourFour)
     project.meter = .threeFour
     project.keySignature = .g
+    project.instrument = "B♭ tenor saxophone"
     project.audio = AudioReference(url)
     project.notes = [
         ScoreEvent(pitch: -3, value: .eighth, dotted: true, accidental: .flat),
@@ -70,6 +71,7 @@ import Testing
     let old = Data(#"{"version":1,"meter":"4/4","notes":[],"playback":{"speed":1,"looping":false}}"#.utf8)
     let project = try Project.decode(old)
     #expect(project.keySignature == .c)
+    #expect(project.instrument.isEmpty)
 }
 
 @Test func writtenKeySuppliesDefaultAccidentalsAcrossOctaves() {
@@ -148,10 +150,23 @@ import Testing
         #expect(first.bar == first.index / 16 + 1)
     }
     #expect(rows.allSatisfy { row in row.barlines.allSatisfy { $0 <= 532 } })
-    let data = try ScorePDF.render(notes, meter: .fourFour, key: .bFlat, title: "Alto PDF Check")
+    let data = try ScorePDF.render(notes, meter: .fourFour, key: .bFlat, title: "Print Check",
+                                   instrument: "  B♭ clarinet  ")
     let pdf = try #require(PDFDocument(data: data))
     #expect(pdf.pageCount == (rows.count + 3) / 4)
-    #expect(pdf.page(at: 0)?.string?.contains("alto saxophone") == true)
+    for pageIndex in 0..<pdf.pageCount {
+        let text = try #require(pdf.page(at: pageIndex)?.string)
+        #expect(text.contains("Print Check"))
+        #expect(text.contains("B♭ clarinet"))
+    }
+}
+
+@Test @MainActor func projectWithoutAnInstrumentExportsOnlyTheTitle() throws {
+    let data = try ScorePDF.render([ScoreEvent(pitch: 4)], meter: .fourFour, key: .c, title: "Print Check",
+                                   instrument: "   ")
+    let page = try #require(PDFDocument(data: data)?.page(at: 0))
+    let header = page.selection(for: CGRect(x: 0, y: 730, width: 612, height: 62))
+    #expect(header?.string?.trimmingCharacters(in: .whitespacesAndNewlines) == "Print Check")
 }
 
 @Test func narrowEditorWrapsTheEntryWithoutAddingAPrintRow() throws {

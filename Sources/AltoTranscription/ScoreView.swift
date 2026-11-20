@@ -5,6 +5,7 @@ struct ScoreView: View {
     @Binding var notes: [ScoreEvent]
     @Binding var meter: Meter
     @Binding var key: KeySignature
+    @Binding var instrument: String
     let title: String
     let pdfTitle: String
     @State private var exportError: String?
@@ -21,8 +22,9 @@ struct ScoreView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Transcription").font(.headline)
-                Text("E♭ alto saxophone · written pitch")
-                    .font(.subheadline).foregroundStyle(.secondary)
+                TextField("Instrument (optional)", text: $instrument)
+                    .frame(width: 170)
+                    .help("Label this project and its PDF exports")
                 Spacer()
                 Button("Clear Score…") { confirmingClear = true }
                     .disabled(notes.isEmpty)
@@ -96,7 +98,7 @@ struct ScoreView: View {
             Picker("Key", selection: $key) {
                 ForEach(KeySignature.allCases, id: \.self) { Text($0.label).tag($0) }
             }
-            .help("Key signature in written E-flat alto pitches")
+            .help("Key signature for the written part")
             .fixedSize()
             Picker("Meter", selection: $meter) {
                 ForEach(Meter.allCases, id: \.self) { Text($0.rawValue).tag($0) }
@@ -119,7 +121,8 @@ struct ScoreView: View {
         panel.nameFieldStringValue = title + ".pdf"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
-            try ScorePDF.render(notes, meter: meter, key: key, title: pdfTitle).write(to: url, options: .atomic)
+            let pdf = try ScorePDF.render(notes, meter: meter, key: key, title: pdfTitle, instrument: instrument)
+            try pdf.write(to: url, options: .atomic)
         } catch {
             exportError = error.localizedDescription
         }
@@ -181,7 +184,7 @@ struct ScoreView: View {
                 clickStaff(at: point, in: row, isLast: isLast)
             })
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Bar \(row.firstBar), written E-flat alto saxophone, \(meter.numerator) over \(meter.denominator)")
+            .accessibilityLabel("Bar \(row.firstBar), treble clef, \(meter.numerator) over \(meter.denominator)")
             .accessibilityValue(row.fragments.contains { $0.index == cursor } || (isLast && cursor == notes.count)
                 ? "Selected: \(selected.pitchLabel(in: key))" : "")
             .accessibilityHint("Use the arrow keys to select or change pitch. Press Return to insert.")

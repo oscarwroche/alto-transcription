@@ -169,6 +169,7 @@ struct Project: Codable, Equatable, FileDocument {
     var version = 1
     var meter = Meter.fourFour
     var keySignature = KeySignature.c
+    var instrument = ""
     var audio: AudioReference?
     var notes: [ScoreEvent] = []
     var playback = PlaybackSettings()
@@ -180,6 +181,7 @@ struct Project: Codable, Equatable, FileDocument {
         version = try values.decode(Int.self, forKey: .version)
         meter = try values.decode(Meter.self, forKey: .meter)
         keySignature = try values.decodeIfPresent(KeySignature.self, forKey: .keySignature) ?? .c
+        instrument = try values.decodeIfPresent(String.self, forKey: .instrument) ?? ""
         audio = try values.decodeIfPresent(AudioReference.self, forKey: .audio)
         notes = try values.decode([ScoreEvent].self, forKey: .notes)
         playback = try values.decode(PlaybackSettings.self, forKey: .playback)

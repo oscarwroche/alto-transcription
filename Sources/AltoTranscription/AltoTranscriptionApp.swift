@@ -72,7 +72,7 @@ private struct ProjectView: View {
                       droppedAudio: $droppedAudio, dropTargeted: audioDropTargeted, audio: audio)
             Divider()
             ScoreView(notes: $project.notes, meter: $project.meter, key: $project.keySignature,
-                      title: title, pdfTitle: pdfTitle)
+                      instrument: $project.instrument, title: title, pdfTitle: pdfTitle)
         }
         .padding(22)
         .onDrop(of: [.fileURL], isTargeted: $audioDropTargeted, perform: receiveAudioDrop)
